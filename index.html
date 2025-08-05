@@ -42,7 +42,7 @@
       .catch(e => status.innerText = "Error: " + e);
   }
 
-  const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; // replace with Apps Script deployment URL
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwthoOzsT4OOPMewsdV1YGhjeIwnVYIMPrMcCNrn4TCHtiTQ0awA0tPFzTcWcJ7HzuP/exec'; // replace with Apps Script deployment URL
 
   document.getElementById('google-signin').addEventListener('click', () => {
     google.accounts.id.prompt(); // if using client-side Google Identity
@@ -58,7 +58,7 @@
 
   window.onload = function() {
     google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_OAUTH_CLIENT_ID',
+      client_id: '41431941294-ocuoqlfs44ofv55rg815lfunvp0vf6ht.apps.googleusercontent.com',
       callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
