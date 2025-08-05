@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>QR Timesheet</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 400px; margin:auto; }
+    button, #reader { width:100%; margin:10px 0; padding:10px; }
+  </style>
+</head>
+<body>
+  <h2>QR Timesheet</h2>
+  <div>
+    <button id="google-signin">Sign in with Google</button>
+    <p id="user-email"></p>
+  </div>
+  <div>
+    <label><input type="radio" name="mode" value="in" checked> Time In</label>
+    <label><input type="radio" name="mode" value="out"> Time Out</label>
+  </div>
+  <div id="reader"></div>
+  <p id="status"></p>
+
+<script>
+  let userEmail = null;
+
+  function initScanner() {
+    new Html5Qrcode("reader").start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      decoded => onScan(decoded)
+    );
+  }
+
+  function onScan(decoded) {
+    if (!userEmail) { alert("Please sign in first"); return; }
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    fetch(SCRIPT_URL + `?email=${encodeURIComponent(userEmail)}&mode=${mode}&data=${encodeURIComponent(decoded)}`)
+      .then(r => r.text())
+      .then(t => status.innerText = t)
+      .catch(e => status.innerText = "Error: " + e);
+  }
+
+  const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE'; // replace with Apps Script deployment URL
+
+  document.getElementById('google-signin').addEventListener('click', () => {
+    google.accounts.id.prompt(); // if using client-side Google Identity
+  });
+
+  window.handleCredentialResponse = function(response) {
+    google.accounts.id.decodeJwtResponseAsync(response.credential).then(payload => {
+      userEmail = payload.email;
+      document.getElementById('user-email').innerText = "Signed in as: " + userEmail;
+      initScanner();
+    });
+  }
+
+  window.onload = function() {
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_OAUTH_CLIENT_ID',
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('google-signin'),
+      { theme: 'outline', size: 'large' }
+    );
+  };
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
